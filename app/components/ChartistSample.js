@@ -37,33 +37,46 @@ export default class ChartistSample extends React.Component {
     this.handleImageConversion = this.handleImageConversion.bind(this);
   }
   handleImageConversion() {
-    let str = new XMLSerializer().serializeToString($('.bar > svg')[0]),
-        encoded = window.btoa(str);
-    
-    var canvas = document.getElementById("canvas");
-    var ctx = canvas.getContext("2d");
+      $('line').each((index, line) => {
+          $(line).attr('stroke', $(line).css('stroke'));
+          $(line).attr('stroke-width', $(line).css('stroke-width').replace('px', ''));
+          $(line).attr('stroke-dasharray', $(line).css('stroke-dasharray').replace('px', ''));
+      });
 
-    var image = new Image();
-    image.onload = function() {
-        ctx.drawImage(image, 0, 0);
-    };
-    image.src = "data:image/svg+xml;base64," + encoded;
-    $('#doc').append(image);
+      var labels = $('.ct-labels');
+      labels.remove();
+      var chartImage = new Image();
+
+      html2canvas($('.bar > svg'))
+        .then((chartCanvas) => {
+            chartCanvas.id = "chart";
+            chartImage.src = chartCanvas.toDataURL("image/png");
+            $('.bar > svg').append(labels);
+            return html2canvas($('.bar > svg'))
+        })
+        .then((labelCanvas) => {
+            labelCanvas.id = "labels";
+            $("#img-out").append(labelCanvas);
+            var ctx = labelCanvas.getContext("2d");
+            ctx.drawImage(chartImage, 0, 0);
+            var fullImage = new Image();
+            fullImage.src = labelCanvas.toDataURL("image/png")
+            $("#img-out").append(fullImage);
+        });
   }
   render() {
     return (
         <div id="doc">
-            <ChartistGraph 
+            <ChartistGraph
                 className="bar"
-                data={chartData} 
-                listener={listener} 
-                type={'Bar'} 
+                data={chartData}
+                listener={listener}
+                type={'Bar'}
                 options={chartOptions} />
-            <canvas id="canvas"></canvas>
-            <img id="converted" src='' />
-            <input 
+            <div id="img-out"></div>
+            <input
                 onClick={this.handleImageConversion}
-                type="button" 
+                type="button"
                 value="Convert"  />
         </div>
     );
