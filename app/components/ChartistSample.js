@@ -56,7 +56,6 @@ export default class ChartistSample extends React.Component {
         })
         .then((labelCanvas) => {
             labelCanvas.id = "labels";
-            $("#img-out").append(labelCanvas);
             var ctx = labelCanvas.getContext("2d");
             ctx.drawImage(chartImage, 0, 0);
             var fullImage = new Image();
